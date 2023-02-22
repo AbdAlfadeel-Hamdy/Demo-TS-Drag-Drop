@@ -1,3 +1,48 @@
+// Validation
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+const validate = (validatableInput: Validatable): boolean => {
+  let isValid = true;
+
+  if (validatableInput.required)
+    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+
+  if (
+    validatableInput.minLength != null &&
+    typeof validatableInput.value === "string"
+  )
+    isValid =
+      isValid && validatableInput.value.length >= validatableInput.minLength;
+
+  if (
+    validatableInput.maxLength != null &&
+    typeof validatableInput.value === "string"
+  )
+    isValid =
+      isValid && validatableInput.value.length <= validatableInput.maxLength;
+
+  if (
+    validatableInput.min != null &&
+    typeof validatableInput.value === "number"
+  )
+    isValid = isValid && validatableInput.value >= validatableInput.min;
+
+  if (
+    validatableInput.max != null &&
+    typeof validatableInput.value === "number"
+  )
+    isValid = isValid && validatableInput.value <= validatableInput.max;
+
+  return isValid;
+};
+
 // Autobind Decorator
 const Autobind = (_: any, _2: string, descriptor: PropertyDescriptor) => {
   const originalMethod = descriptor.value;
@@ -53,15 +98,27 @@ class ProjectInput {
   }
 
   private gatherUserInput(): [string, string, number] | void {
-    const enteredTitle = this.titleInputElement.value.trim();
-    const enteredDescription = this.descriptionInputElement.value.trim();
-    const enteredPeople = this.peopleInputElement.value.trim();
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.descriptionInputElement.value;
+    const enteredPeople = this.peopleInputElement.value;
     if (
-      enteredTitle.length === 0 ||
-      enteredDescription.length === 0 ||
-      enteredPeople.length === 0
+      !validate({
+        value: enteredTitle,
+        required: true,
+      }) ||
+      !validate({
+        value: enteredDescription,
+        required: true,
+        minLength: 5,
+      }) ||
+      !validate({
+        value: +enteredPeople,
+        required: true,
+        min: 1,
+        max: 5,
+      })
     ) {
-      alert("Invalid user inputs, please try again!");
+      alert("Invalid inputs, please try again!");
       return;
     }
     return [enteredTitle, enteredDescription, +enteredPeople];
