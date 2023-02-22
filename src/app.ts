@@ -35,6 +35,8 @@ class ProjectInput {
 
     this.element = importedNode.firstElementChild as HTMLFormElement;
 
+    this.element.id = "user-input";
+
     this.titleInputElement = this.element.querySelector(
       "#title"
     ) as HTMLInputElement;
@@ -50,10 +52,36 @@ class ProjectInput {
     this.attach();
   }
 
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value.trim();
+    const enteredDescription = this.descriptionInputElement.value.trim();
+    const enteredPeople = this.peopleInputElement.value.trim();
+    if (
+      enteredTitle.length === 0 ||
+      enteredDescription.length === 0 ||
+      enteredPeople.length === 0
+    ) {
+      alert("Invalid user inputs, please try again!");
+      return;
+    }
+    return [enteredTitle, enteredDescription, +enteredPeople];
+  }
+
+  private clearInputs() {
+    this.titleInputElement.value = "";
+    this.descriptionInputElement.value = "";
+    this.peopleInputElement.value = "";
+  }
+
   @Autobind
   private submitHandler(e: Event) {
     e.preventDefault();
-    console.log(this.titleInputElement.value);
+    const userInput = this.gatherUserInput();
+    if (Array.isArray(userInput)) {
+      const [title, desc, people] = userInput;
+      console.log(title, desc, people);
+      this.clearInputs();
+    }
   }
 
   private configure() {
